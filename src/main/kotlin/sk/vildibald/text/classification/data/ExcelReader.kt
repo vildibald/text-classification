@@ -23,7 +23,6 @@ class ExcelReader {
     }
 
     fun readNews(filepath: String): List<News> {
-
         //Row index specifies the row in the worksheet (starting at 0):
         //Cell index specifies the column within the chosen row (starting at 0):
         val categoryColumnNumber = 0
@@ -34,7 +33,6 @@ class ExcelReader {
         val timeFormatter = DateTimeFormatter.ofPattern("MM.dd.yyyy")
 
         return asSheet(filepath).drop(1).map {
-
             val localDate = try {
                 it.getCell(dateColumnNumber).dateCellValue.toLocalDate()
             } catch (e: IllegalStateException) {

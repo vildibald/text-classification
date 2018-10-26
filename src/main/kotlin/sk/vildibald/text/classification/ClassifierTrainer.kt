@@ -19,11 +19,12 @@ class ClassifierTrainer(private val convergenceTolerance: Double = 1e-4,
                                    val datum: BasicDatum<String, String>)
 
         val processor = ProcessorFactory.createProcessor()
-        var goldSet = trainingFile.readLines().map { it.split("\t") }.map { (tag, content) ->
-            val datum = processor.createDatum(content)
-            datum.setLabel(tag)
-            TagContentDatum(tag, content, datum)
-        }
+        var goldSet = trainingFile.readLines().asSequence().map { it.split("\t") }
+                .map { (tag, content) ->
+                    val datum = processor.createDatum(content)
+                    datum.setLabel(tag)
+                    TagContentDatum(tag, content, datum)
+                }.toList()
 
         val random = Random()
 //        random.setSeed(123)
@@ -50,7 +51,7 @@ class ClassifierTrainer(private val convergenceTolerance: Double = 1e-4,
                     .sortedByDescending { it.value }
             tagContentDatum.tag == scores.first().key
         }
-        println("Training accuracy: ${String.format("%.1f", 100.0*correct/testData.size)}\n")
+        println("Training accuracy: ${String.format("%.1f", 100.0 * correct / testData.size)}\n")
         return TextClassifier(classifier)
     }
 
