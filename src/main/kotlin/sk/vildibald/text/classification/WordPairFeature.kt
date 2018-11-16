@@ -6,7 +6,6 @@ import sk.vildibald.text.classification.util.getOrElseKotlin
 class WordPairFeature : Feature {
 
     override fun createFeatures(sentence: Sentence): Iterable<String> {
-
         val lemmas = sentence.lemmas().getOrElseKotlin { emptyArray() }
         val tags = sentence.tags().getOrElseKotlin { emptyArray() }
 
@@ -26,6 +25,7 @@ class WordPairFeature : Feature {
 
     private fun matchesPosition(tag: String): Boolean = when (tag) {
         "NN", "NNS", "NNP", "NNPS", "JJ", "VB", "VBP", "VBD", "VBG", "VBN", "VBZ" -> true
+//        "NN", "NNS", "NNP", "NNPS", "VB", "VBP", "VBD", "VBG", "VBN", "VBZ" -> true
         else -> false
     }
 

@@ -32,7 +32,8 @@ class ExcelReader {
 
         val timeFormatter = DateTimeFormatter.ofPattern("MM.dd.yyyy")
 
-        return asSheet(filepath).drop(1).map {
+        return asSheet(filepath).drop(1).filter { it.count() == 4 }.map {
+
             val localDate = try {
                 it.getCell(dateColumnNumber).dateCellValue.toLocalDate()
             } catch (e: IllegalStateException) {
@@ -42,12 +43,12 @@ class ExcelReader {
             }
             val content = try {
                 it.getCell(contentColumnNumber).stringCellValue
-            }catch (e: IllegalStateException){
+            } catch (e: IllegalStateException) {
                 ""
             }
-            News(it.getCell(categoryColumnNumber).stringCellValue,
+            News(it.getCell(categoryColumnNumber)?.stringCellValue ?: "",
                     localDate,
-                    it.getCell(snippetColumnNumber).stringCellValue,
+                    it.getCell(snippetColumnNumber)?.stringCellValue ?: "",
                     content)
         }
     }

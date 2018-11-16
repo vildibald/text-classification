@@ -3,9 +3,9 @@ package sk.vildibald.text.classification
 import edu.stanford.nlp.classify.Dataset
 import edu.stanford.nlp.classify.LinearClassifierFactory
 import edu.stanford.nlp.ling.BasicDatum
+import org.clulab.processors.Processor
 import sk.vildibald.text.classification.util.createDatum
 import java.io.File
-import java.util.*
 
 typealias Category = String
 
@@ -13,26 +13,31 @@ class ClassifierTrainer(private val convergenceTolerance: Double = 1e-4,
                         private val smoothingFactor: Double = 1.0,
                         private val numFeatures: Int = 50) {
 
-    fun train(trainingFile: File): TextClassifier {
-        data class TagContentDatum(val tag: String,
-                                   val content: String,
-                                   val datum: BasicDatum<String, String>)
+    private val processor = ProcessorFactory.createProcessor()
 
-        val processor = ProcessorFactory.createProcessor()
-        var goldSet = trainingFile.readLines().asSequence().map { it.split("\t") }
-                .map { (tag, content) ->
-                    val datum = processor.createDatum(content)
-                    datum.setLabel(tag)
-                    TagContentDatum(tag, content, datum)
-                }.toList()
+    private data class CategoryContent(val category: String,
+                                       val content: String) {
+        fun toDatum(processor: Processor = ProcessorFactory.createProcessor())
+                : BasicDatum<String, String> {
+            val datum = processor.createDatum(content)
+            datum.setLabel(category)
+            return datum
+        }
+    }
 
-        val random = Random()
-//        random.setSeed(123)
-        goldSet = goldSet.shuffled(random)
+    fun train(trainingFile: File, datasetMultiplyFactor: Int = 1): TextClassifier {
+
+        val goldSet = trainingFile.readLines().asSequence().map { it.split("\t") }
+                .map { (category, content) ->
+                    CategoryContent(category, content)
+                }.toList().shuffled()
+
         val splitIdx = (goldSet.size * 0.8).toInt()
 
         val trainingData = Dataset<Category, String>(splitIdx)
-        goldSet.take(splitIdx).forEach { trainingData.add(it.datum) }
+        goldSet.take(splitIdx).multiplied(datasetMultiplyFactor).shuffled().forEach {
+            trainingData.add(it.toDatum(processor))
+        }
 
         val testData = goldSet.drop(splitIdx)
         println("Total features: ${trainingData.numFeatures()}")
@@ -47,13 +52,37 @@ class ClassifierTrainer(private val convergenceTolerance: Double = 1e-4,
         println("Top $numFeatures overall features:\n$bestFeatures\n")
 
         val correct = testData.count { tagContentDatum ->
-            val scores = classifier.probabilityOf(tagContentDatum.datum).entrySet().toList()
-                    .sortedByDescending { it.value }
-            tagContentDatum.tag == scores.first().key
+            val scores = classifier.probabilityOf(tagContentDatum.toDatum(processor)).entrySet()
+                    .toList().sortedByDescending { it.value }
+            tagContentDatum.category == scores.first().key
         }
-        println("Training accuracy: ${String.format("%.1f", 100.0 * correct / testData.size)}\n")
+        println("Training accuracy: ${String.format("%.1f", 100.0 * correct / testData.size)}%\n")
         return TextClassifier(classifier)
     }
 
+//    private fun multiplyDataset(datasetLines: List<String>, datasetMultiplyFactor: Int = 3): List<String> =
+//            datasetMultiplyFactor.takeIf { it > 1 }?.let {
+//                datasetLines.flatMap { line ->
+//                    val category = line.substringBefore("\t")
+//                    (0 until datasetMultiplyFactor).map {
+//                        category + "\t" + line.substringAfter("\t").split(" ").shuffled()
+//                                .joinToString(separator = " ")
+//                    } + line
+//                }
+//            }?: datasetLines
 
+    private fun multiplyDataset(datasetRows: Iterable<CategoryContent>, multiplyFactor: Int):
+            Iterable<CategoryContent> =
+            multiplyFactor.takeIf { it > 1 }?.let {
+                datasetRows.flatMap { datum ->
+                    (0 until multiplyFactor).map {
+                        datum.copy(content = datum.content.split(" ").shuffled()
+                                .joinToString(separator = " "))
+                    } + datum
+                }
+            } ?: datasetRows
+
+    private fun Iterable<CategoryContent>.multiplied(multiplyFactor: Int)
+            : Iterable<CategoryContent> =
+            multiplyDataset(this, multiplyFactor)
 }
