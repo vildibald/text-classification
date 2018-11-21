@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: org.clulab:bioresources:1.1.24">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/bioresources/1.1.24/d126b511409118f2ca024dca59c2f8dfacdf33c/bioresources-1.1.24.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/bioresources/1.1.24/61a632633401c53ffc4b74363aac6d5d7775b64e/bioresources-1.1.24-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/bioresources/1.1.24/9855cf415f2f08749d7ef833c503ff3391610e80/bioresources-1.1.24-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

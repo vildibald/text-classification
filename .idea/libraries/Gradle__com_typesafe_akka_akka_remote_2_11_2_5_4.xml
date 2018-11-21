@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: com.typesafe.akka:akka-remote_2.11:2.5.4">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.typesafe.akka/akka-remote_2.11/2.5.4/264dcf975f645b8516e47b652d1221ccc9fa01db/akka-remote_2.11-2.5.4.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.typesafe.akka/akka-remote_2.11/2.5.4/c0f4e33d4a554621a15b5a49e52a389fe164d3d1/akka-remote_2.11-2.5.4-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.typesafe.akka/akka-remote_2.11/2.5.4/f69b946252b03bf9ced489782be5cdbb4855a627/akka-remote_2.11-2.5.4-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: ai.lum:common_2.11:0.0.8">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/ai.lum/common_2.11/0.0.8/c57fad724a42b17294f22eaa073276b8309fd098/common_2.11-0.0.8.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/ai.lum/common_2.11/0.0.8/2c0b27c518533b395277641d7a9568daef4d30fb/common_2.11-0.0.8-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/ai.lum/common_2.11/0.0.8/1b5d6b89f3aaf1bf4fa14a894b0a27f4d8e3d/common_2.11-0.0.8-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

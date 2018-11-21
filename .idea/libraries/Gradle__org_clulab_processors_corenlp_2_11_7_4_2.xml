@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: org.clulab:processors-corenlp_2.11:7.4.2">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/processors-corenlp_2.11/7.4.2/a3d4fbd4f9717696ab1dad8cb5cb6ee864f9e092/processors-corenlp_2.11-7.4.2.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/processors-corenlp_2.11/7.4.2/9aab2369b0843ff6df9e5d3bab5c3f2b5f72081f/processors-corenlp_2.11-7.4.2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/processors-corenlp_2.11/7.4.2/dc4e5b03634c63830496bed50857d3abd9a74d4e/processors-corenlp_2.11-7.4.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

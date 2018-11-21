@@ -6,9 +6,8 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 
-
-const val DATASET = "news.txt"
-const val SAVED_MODEL_NAME = "newsModel.model"
+const val DATASET = "news_new.txt"
+const val SAVED_MODEL_NAME = "newsModel_new.model"
 const val XML_NEWS = "CCNNewsUpdated.xlsx"
 //const val XML_NEWS = "CCNNews.xlsx"
 
@@ -16,7 +15,6 @@ const val XML_NEWS = "CCNNewsUpdated.xlsx"
 const val DATASET_MULTIPLY_TRAINING_FACTOR = 5
 // delete DATASET and SAVED_MODEL_NAME files before modifying this
 const val DAYS_DIFF = 1L
-
 
 //val testQuery = "Trump says: I will make America great again by banning Bitcoin. Hell yeah!"
 //val testQuery = "European Central Bank will adopt Bitcoin as its main currency. You can throw your current cash to trash"
@@ -37,7 +35,7 @@ val testQuery = "This week, the US stock market deleted all of its gains made in
 
 const val PRICE_INCREASE_CATEGORY = "Increase"
 const val PRICE_DECREASE_CATEGORY = "Decrease"
-
+const val PRICE_FLAT_CATEGORY = "Flat"
 /////////////////////////////////
 
 fun main(args: Array<String>) {
@@ -50,7 +48,6 @@ fun main(args: Array<String>) {
         loadModel()
     else
         trainModelAndSave()
-
 }
 
 fun loadModel() {
@@ -77,7 +74,6 @@ private fun prepareDataset(pricesFilePath: String, newsFilePath: String) {
     val datasetFile = File(DATASET)
     if (datasetFile.exists()) return
 
-
     val excelReader = ExcelReader()
 
     val news = excelReader.readNews(newsFilePath).sortedBy { it.date }
@@ -85,33 +81,51 @@ private fun prepareDataset(pricesFilePath: String, newsFilePath: String) {
     val pricePeaks = prices.detectPeaks()
     val peakIndices = pricePeaks.peaks.map { it.index }
     val valleyIndices = pricePeaks.valleys.map { it.index }
+    val flatIndices = pricePeaks.flat.map { it.index }
 
-    val datasetLines = prices.filterIndexed {
-        index, _ -> index in valleyIndices }.flatMap { valley ->
-        news.filter { it.date.isBefore(valley.date.plusDays(1)) &&
-                it.date.isAfter(valley.date.minusDays(DAYS_DIFF)) }.map {
+//    println("NEWS: " + news)
+//    println("PRICES: " + prices)
+//    println("PRICE PEAKS: " + pricePeaks)
+//    println("PEAK INDECES: " + peakIndices)
+//    println("VALLEY INDECES: " + valleyIndices)
+//      println("Flat: " + flat)
+
+    val datasetLines = prices.filterIndexed { index, _ -> index in valleyIndices }.flatMap { valley ->
+        news.filter {
+            it.date.isBefore(valley.date.plusDays(1)) &&
+                    it.date.isAfter(valley.date.minusDays(DAYS_DIFF))
+        }.map {
             "$PRICE_INCREASE_CATEGORY\t${it.snippet} ${it.content}"
         }
     } + prices.filterIndexed { index, _ -> index in peakIndices }.flatMap { peak ->
-        news.filter { it.date.isBefore(peak.date.plusDays(1)) &&
-                it.date.isAfter(peak.date.minusDays(DAYS_DIFF)) }.map {
+        news.filter {
+            it.date.isBefore(peak.date.plusDays(1)) &&
+                    it.date.isAfter(peak.date.minusDays(DAYS_DIFF))
+        }.map {
             "$PRICE_DECREASE_CATEGORY\t${it.snippet} ${it.content}"
+        }
+    } + prices.filterIndexed { index, _ -> index in flatIndices }.flatMap { flat ->
+        news.filter {
+            it.date.isBefore(flat.date.plusDays(1)) &&
+                    it.date.isAfter(flat.date.minusDays(DAYS_DIFF))
+        }.map {
+            "$PRICE_FLAT_CATEGORY\t${it.snippet} ${it.content}"
         }
     }
 
-    // Accuracy without multiply ~ 0.4
-    // Accuracy with multiply ~ 0.8
-
-//    Files.write(Paths.get(DATASET), multiplyDataset(datasetLines))
+//    // Accuracy without multiply ~ 0.4
+//    // Accuracy with multiply ~ 0.8
+//
+////    Files.write(Paths.get(DATASET), multiplyDataset(datasetLines))
     Files.write(Paths.get(DATASET), datasetLines)
 }
 
 fun multiplyDataset(datasetLines: List<String>, howManyTimes: Int = 3): List<String> =
-        datasetLines.flatMap { line ->
-            val category = line.substringBefore("\t")
-            (0 until howManyTimes).map {
-                category + "\t" + line.substringAfter("\t").split(" ").shuffled()
-                        .joinToString(separator = " ")
-            } + line
-        }
+    datasetLines.flatMap { line ->
+        val category = line.substringBefore("\t")
+        (0 until howManyTimes).map {
+            category + "\t" + line.substringAfter("\t").split(" ").shuffled()
+                .joinToString(separator = " ")
+        } + line
+    }
 

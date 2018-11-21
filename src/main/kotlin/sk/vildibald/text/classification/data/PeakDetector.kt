@@ -2,13 +2,15 @@ package sk.vildibald.text.classification.data
 
 import sk.vildibald.text.classification.data.entities.BtcPrice
 
-const val DEFAULT_TRIGGER_DELTA = 300.0
+const val DEFAULT_TRIGGER_DELTA = 7.0
 
 data class Peak(val height: Double, val index: Int)
 
 data class Valley(val height: Double, val index: Int)
 
-data class PeaksValleys(val peaks: List<Peak>, val valleys: List<Valley>)
+data class Flat(val height: Double, val index: Int)
+
+data class PeaksValleys(val peaks: List<Peak>, val valleys: List<Valley>, val flat: List<Flat>)
 
 class PeakDetector {
 
@@ -30,10 +32,12 @@ class PeakDetector {
      ! Eli Billauer, 3.4.05 (http://billauer.co.il)
      ! Translated into Fortran by Brian McNoldy (http://andrew.rsmas.miami.edu/bmcnoldy)
      ! This function is released to the public domain; Any use is allowed.*/
-    fun detectPeaks(vector: List<BtcPrice>,
-                    offset: Int = 0,
-                    length: Int = vector.size,
-                    triggerDelta: Double = DEFAULT_TRIGGER_DELTA):
+    fun detectPeaks(
+        vector: List<BtcPrice>,
+        offset: Int = 0,
+        length: Int = vector.size,
+        triggerDelta: Double = DEFAULT_TRIGGER_DELTA
+    ):
             PeaksValleys {
         var mn = Double.POSITIVE_INFINITY
         var mx = Double.NEGATIVE_INFINITY
@@ -42,7 +46,8 @@ class PeakDetector {
         var lookformax = 1
 
         val maxtab_tmp = ArrayList<Peak>()
-        val mintab_tmp = ArrayList<Valley>();
+        val mintab_tmp = ArrayList<Valley>()
+        val flat_tmp = ArrayList<Flat>()
 
         for (i in offset until length) {
             val a = vector[i].value
@@ -60,20 +65,24 @@ class PeakDetector {
                     mn = a
                     mnpos = vector[i].value
                     lookformax = 0
+                } else {
+                    flat_tmp.add(Flat(mxpos, i))
                 }
             } else {
                 if (a > mn + triggerDelta) {
-                    mintab_tmp.add(Valley(mnpos, i));
+                    mintab_tmp.add(Valley(mnpos, i))
                     mx = a
                     mxpos = vector[i].value
                     lookformax = 1
+                } else {
+                    flat_tmp.add(Flat(mnpos, i))
                 }
             }
         }
 
-        return PeaksValleys(maxtab_tmp, mintab_tmp)
+        return PeaksValleys(maxtab_tmp, mintab_tmp, flat_tmp)
     }
 }
 
 fun List<BtcPrice>.detectPeaks(): PeaksValleys =
-        PeakDetector().detectPeaks(this)
+    PeakDetector().detectPeaks(this)

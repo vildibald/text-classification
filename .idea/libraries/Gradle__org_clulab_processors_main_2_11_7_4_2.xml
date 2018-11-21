@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: org.clulab:processors-main_2.11:7.4.2">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/processors-main_2.11/7.4.2/8b7b4f02ee415f9417340d5ccdf2cc609f24bff6/processors-main_2.11-7.4.2.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/processors-main_2.11/7.4.2/5dcbece52fdf908fbe62dbeede6373c079005c0c/processors-main_2.11-7.4.2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/processors-main_2.11/7.4.2/5c2f5983fc6d7be052fd0a4f6b6233c3937dc02e/processors-main_2.11-7.4.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: org.clulab:processors-odin_2.11:7.4.2">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/processors-odin_2.11/7.4.2/16962565431971c16e351c881cc7be55c6da2ead/processors-odin_2.11-7.4.2.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/processors-odin_2.11/7.4.2/85690bfd96ea4470c0103f2b8120c6d5abd235e/processors-odin_2.11-7.4.2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/processors-odin_2.11/7.4.2/505d256d4c312c61ea01daf9229a23ff6d95b9ce/processors-odin_2.11-7.4.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

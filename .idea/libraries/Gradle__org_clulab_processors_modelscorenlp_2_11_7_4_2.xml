@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Gradle: org.clulab:processors-modelscorenlp_2.11:7.4.2">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/processors-modelscorenlp_2.11/7.4.2/9bde4a1632f047e9a3742ef43d4839a231cd3b1a/processors-modelscorenlp_2.11-7.4.2.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/processors-modelscorenlp_2.11/7.4.2/d541d45b42561e13fe6b3110a7086c0ccc42118e/processors-modelscorenlp_2.11-7.4.2-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.clulab/processors-modelscorenlp_2.11/7.4.2/3e3d4a2388b9e851f9657ce64166a62257509ee2/processors-modelscorenlp_2.11-7.4.2-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
