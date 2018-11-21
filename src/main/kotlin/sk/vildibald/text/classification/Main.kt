@@ -104,9 +104,5 @@ private fun prepareDataset(pricesFilePath: String, newsFilePath: String) {
         }
     }
 
-    // Accuracy without multiply ~ 0.4
-    // Accuracy with multiply ~ 0.8
-
-//    Files.write(Paths.get(DATASET), multiplyDataset(datasetLines))
     Files.write(Paths.get(DATASET), datasetLines)
 }
