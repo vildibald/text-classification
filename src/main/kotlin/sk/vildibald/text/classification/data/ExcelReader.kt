@@ -10,17 +10,13 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class ExcelReader {
-    fun readBtcPrices(filepath: String): List<BtcPrice> {
-        val dateColumnNumber = 0
-        val priceColumnNumber = 4
-        return asSheet(filepath).drop(1)//filter { it.getCell(priceColumnNumber).cellType ==
-                // CellType
-                // .NUMERIC }
-                .map {
-                    BtcPrice(it.getCell(dateColumnNumber).dateCellValue.toLocalDate(),
-                            it.getCell(priceColumnNumber).numericCellValue)
-                }
-    }
+    fun readBtcPrices(filepath: String, dateColumnNumber: Int, priceColumnNumber: Int):
+            List<BtcPrice> = asSheet(filepath)
+                    .drop(1)
+                    .map {
+                        BtcPrice(it.getCell(dateColumnNumber).dateCellValue.toLocalDate(),
+                                it.getCell(priceColumnNumber).numericCellValue)
+                    }
 
     fun readNews(filepath: String): List<News> {
         //Row index specifies the row in the worksheet (starting at 0):
@@ -33,7 +29,6 @@ class ExcelReader {
         val timeFormatter = DateTimeFormatter.ofPattern("MM.dd.yyyy")
 
         return asSheet(filepath).drop(1).filter { it.count() == 4 }.map {
-
             val localDate = try {
                 it.getCell(dateColumnNumber).dateCellValue.toLocalDate()
             } catch (e: IllegalStateException) {
@@ -53,11 +48,6 @@ class ExcelReader {
         }
     }
 
-    private fun asSheet(filepath: String): Sheet {
-        val inputStream = FileInputStream(filepath)
-        //Instantiate Excel workbook using existing file:
-        var xlWb = WorkbookFactory.create(inputStream)
-        //Get reference to first sheet:
-        return xlWb.getSheetAt(0)
-    }
+    private fun asSheet(filepath: String): Sheet =
+            WorkbookFactory.create(FileInputStream(filepath)).getSheetAt(0)
 }

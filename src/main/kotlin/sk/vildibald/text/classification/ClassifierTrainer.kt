@@ -60,17 +60,6 @@ class ClassifierTrainer(private val convergenceTolerance: Double = 1e-4,
         return TextClassifier(classifier)
     }
 
-//    private fun multiplyDataset(datasetLines: List<String>, datasetMultiplyFactor: Int = 3): List<String> =
-//            datasetMultiplyFactor.takeIf { it > 1 }?.let {
-//                datasetLines.flatMap { line ->
-//                    val category = line.substringBefore("\t")
-//                    (0 until datasetMultiplyFactor).map {
-//                        category + "\t" + line.substringAfter("\t").split(" ").shuffled()
-//                                .joinToString(separator = " ")
-//                    } + line
-//                }
-//            }?: datasetLines
-
     private fun multiplyDataset(datasetRows: Iterable<CategoryContent>, multiplyFactor: Int):
             Iterable<CategoryContent> =
             multiplyFactor.takeIf { it > 1 }?.let {
