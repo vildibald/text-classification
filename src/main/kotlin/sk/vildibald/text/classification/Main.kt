@@ -9,8 +9,12 @@ import java.nio.file.Paths
 
 const val DATASET = "news.txt"
 const val SAVED_MODEL_NAME = "newsModel.model"
-const val XML_NEWS = "CCNNewsUpdated.xlsx"
-//const val XML_NEWS = "CCNNews.xlsx"
+const val EXCEL_NEWS = "CCNNewsUpdated.xlsx"
+const val EXCEL_PRICES = "CMCHistoricalData.xlsx"
+const val DATE_COLUMN_EXCEL = 0
+const val PRICE_COLUMN_EXCEL = 4
+
+//const val EXCEL_NEWS = "CCNNews.xlsx"
 
 // delete SAVED_MODEL_NAME file before modifying this
 const val DATASET_MULTIPLY_TRAINING_FACTOR = 5
@@ -41,11 +45,9 @@ const val PRICE_DECREASE_CATEGORY = "Decrease"
 /////////////////////////////////
 
 fun main(args: Array<String>) {
-    if (!File(DATASET).exists()) {
-        val pricesFile = "CMCHistoricalData.xlsx"
-        val newsFile = XML_NEWS
-        prepareDataset(pricesFile, newsFile)
-    }
+    if (!File(DATASET).exists())
+        prepareDataset(EXCEL_PRICES, EXCEL_NEWS)
+
     if (File(SAVED_MODEL_NAME).exists())
         loadModel()
     else
@@ -77,24 +79,27 @@ private fun prepareDataset(pricesFilePath: String, newsFilePath: String) {
     val datasetFile = File(DATASET)
     if (datasetFile.exists()) return
 
-
     val excelReader = ExcelReader()
 
     val news = excelReader.readNews(newsFilePath).sortedBy { it.date }
-    val prices = excelReader.readBtcPrices(pricesFilePath)
+    val prices = excelReader.readBtcPrices(pricesFilePath, DATE_COLUMN_EXCEL, PRICE_COLUMN_EXCEL)
+
     val pricePeaks = prices.detectPeaks()
     val peakIndices = pricePeaks.peaks.map { it.index }
     val valleyIndices = pricePeaks.valleys.map { it.index }
 
-    val datasetLines = prices.filterIndexed {
-        index, _ -> index in valleyIndices }.flatMap { valley ->
-        news.filter { it.date.isBefore(valley.date.plusDays(1)) &&
-                it.date.isAfter(valley.date.minusDays(DAYS_DIFF)) }.map {
+    val datasetLines = prices.filterIndexed { index, _ -> index in valleyIndices }.flatMap { valley ->
+        news.filter {
+            it.date.isBefore(valley.date.plusDays(1)) &&
+                    it.date.isAfter(valley.date.minusDays(DAYS_DIFF))
+        }.map {
             "$PRICE_INCREASE_CATEGORY\t${it.snippet} ${it.content}"
         }
     } + prices.filterIndexed { index, _ -> index in peakIndices }.flatMap { peak ->
-        news.filter { it.date.isBefore(peak.date.plusDays(1)) &&
-                it.date.isAfter(peak.date.minusDays(DAYS_DIFF)) }.map {
+        news.filter {
+            it.date.isBefore(peak.date.plusDays(1)) &&
+                    it.date.isAfter(peak.date.minusDays(DAYS_DIFF))
+        }.map {
             "$PRICE_DECREASE_CATEGORY\t${it.snippet} ${it.content}"
         }
     }
@@ -105,13 +110,3 @@ private fun prepareDataset(pricesFilePath: String, newsFilePath: String) {
 //    Files.write(Paths.get(DATASET), multiplyDataset(datasetLines))
     Files.write(Paths.get(DATASET), datasetLines)
 }
-
-fun multiplyDataset(datasetLines: List<String>, howManyTimes: Int = 3): List<String> =
-        datasetLines.flatMap { line ->
-            val category = line.substringBefore("\t")
-            (0 until howManyTimes).map {
-                category + "\t" + line.substringAfter("\t").split(" ").shuffled()
-                        .joinToString(separator = " ")
-            } + line
-        }
-
