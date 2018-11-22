@@ -2,7 +2,7 @@ package sk.vildibald.text.classification.data
 
 import sk.vildibald.text.classification.data.entities.BtcPrice
 
-const val DEFAULT_TRIGGER_DELTA = 300.0
+const val DEFAULT_TRIGGER_DELTA = 350.0
 
 data class Peak(val height: Double, val index: Int)
 
@@ -39,7 +39,7 @@ class PeakDetector {
         var mx = Double.NEGATIVE_INFINITY
         var mnpos = Double.NaN
         var mxpos = Double.NaN
-        var lookformax = 1
+        var lookformax = true
 
         val maxtab_tmp = ArrayList<Peak>()
         val mintab_tmp = ArrayList<Valley>();
@@ -54,19 +54,19 @@ class PeakDetector {
                 mn = a
                 mnpos = vector[i].value
             }
-            if (lookformax == 1) {
+            if (lookformax) {
                 if (a < mx - triggerDelta) {
                     maxtab_tmp.add(Peak(mxpos, i))
                     mn = a
                     mnpos = vector[i].value
-                    lookformax = 0
+                    lookformax = false
                 }
             } else {
                 if (a > mn + triggerDelta) {
                     mintab_tmp.add(Valley(mnpos, i));
                     mx = a
                     mxpos = vector[i].value
-                    lookformax = 1
+                    lookformax = true
                 }
             }
         }

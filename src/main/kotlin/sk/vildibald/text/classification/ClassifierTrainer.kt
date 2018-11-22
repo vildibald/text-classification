@@ -4,21 +4,21 @@ import edu.stanford.nlp.classify.Dataset
 import edu.stanford.nlp.classify.LinearClassifierFactory
 import edu.stanford.nlp.ling.BasicDatum
 import org.clulab.processors.Processor
+import sk.vildibald.text.classification.data.entities.Category
 import sk.vildibald.text.classification.util.createDatum
 import java.io.File
 
-typealias Category = String
-
 class ClassifierTrainer(private val convergenceTolerance: Double = 1e-4,
                         private val smoothingFactor: Double = 1.0,
-                        private val numFeatures: Int = 50) {
+                        private val numFeatures: Int = 50,
+                        private val crossValidationRatio: Double = 0.8) {
 
     private val processor = ProcessorFactory.createProcessor()
 
-    private data class CategoryContent(val category: String,
+    private data class CategoryContent(val category: Category,
                                        val content: String) {
         fun toDatum(processor: Processor = ProcessorFactory.createProcessor())
-                : BasicDatum<String, String> {
+                : BasicDatum<Category, String> {
             val datum = processor.createDatum(content)
             datum.setLabel(category)
             return datum
@@ -28,11 +28,11 @@ class ClassifierTrainer(private val convergenceTolerance: Double = 1e-4,
     fun train(trainingFile: File, datasetMultiplyFactor: Int = 1): TextClassifier {
 
         val goldSet = trainingFile.readLines().asSequence().map { it.split("\t") }
-                .map { (category, content) ->
-                    CategoryContent(category, content)
+                .map { (categoryString, content) ->
+                    CategoryContent(Category.valueOf(categoryString), content)
                 }.toList().shuffled()
 
-        val splitIdx = (goldSet.size * 0.8).toInt()
+        val splitIdx = (goldSet.size * crossValidationRatio).toInt()
 
         val trainingData = Dataset<Category, String>(splitIdx)
         goldSet.take(splitIdx).multiplied(datasetMultiplyFactor).shuffled().forEach {
@@ -62,14 +62,15 @@ class ClassifierTrainer(private val convergenceTolerance: Double = 1e-4,
 
     private fun multiplyDataset(datasetRows: Iterable<CategoryContent>, multiplyFactor: Int):
             Iterable<CategoryContent> =
-            multiplyFactor.takeIf { it > 1 }?.let {
+            if (multiplyFactor < 2)
+                datasetRows
+            else
                 datasetRows.flatMap { datum ->
                     (0 until multiplyFactor).map {
                         datum.copy(content = datum.content.split(" ").shuffled()
                                 .joinToString(separator = " "))
                     } + datum
                 }
-            } ?: datasetRows
 
     private fun Iterable<CategoryContent>.multiplied(multiplyFactor: Int)
             : Iterable<CategoryContent> =

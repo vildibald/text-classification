@@ -2,6 +2,7 @@ package sk.vildibald.text.classification
 
 import sk.vildibald.text.classification.data.ExcelReader
 import sk.vildibald.text.classification.data.detectPeaks
+import sk.vildibald.text.classification.data.entities.Category
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -17,7 +18,7 @@ const val PRICE_COLUMN_EXCEL = 4
 //const val EXCEL_NEWS = "CCNNews.xlsx"
 
 // delete SAVED_MODEL_NAME file before modifying this
-const val DATASET_MULTIPLY_TRAINING_FACTOR = 5
+const val DATASET_MULTIPLY_TRAINING_FACTOR = 20
 // delete DATASET and SAVED_MODEL_NAME files before modifying this
 const val DAYS_DIFF = 1L
 
@@ -37,11 +38,6 @@ val testQuery = "This week, the US stock market deleted all of its gains made in
         "crash of the US is to intensify, given the gradual decline in the growth rate of China’s economy. " +
         "“Then, there are worries about what’s happening abroad. China, the world’s " +
         "second-biggest economy, is showing slower growth. Last week, it reported economic growth of 6.5 percent in the third quarter, falling short of expectations. And it has been drawn into a trade dispute with the U.S., with each side digging in on tariffs on billions of dollars of each other’s imports,” CNBC investing editor reported. "
-/////////////////////////////////
-
-const val PRICE_INCREASE_CATEGORY = "Increase"
-const val PRICE_DECREASE_CATEGORY = "Decrease"
-
 /////////////////////////////////
 
 fun main(args: Array<String>) {
@@ -88,21 +84,26 @@ private fun prepareDataset(pricesFilePath: String, newsFilePath: String) {
     val peakIndices = pricePeaks.peaks.map { it.index }
     val valleyIndices = pricePeaks.valleys.map { it.index }
 
-    val datasetLines = prices.filterIndexed { index, _ -> index in valleyIndices }.flatMap { valley ->
-        news.filter {
-            it.date.isBefore(valley.date.plusDays(1)) &&
-                    it.date.isAfter(valley.date.minusDays(DAYS_DIFF))
-        }.map {
-            "$PRICE_INCREASE_CATEGORY\t${it.snippet} ${it.content}"
-        }
-    } + prices.filterIndexed { index, _ -> index in peakIndices }.flatMap { peak ->
-        news.filter {
-            it.date.isBefore(peak.date.plusDays(1)) &&
-                    it.date.isAfter(peak.date.minusDays(DAYS_DIFF))
-        }.map {
-            "$PRICE_DECREASE_CATEGORY\t${it.snippet} ${it.content}"
-        }
-    }
+    val datasetLines =
+            prices.filterIndexed { index, _ -> index in valleyIndices }.flatMap { valley ->
+                news.filter {
+                    it.date.isBefore(valley.date.plusDays(1)) &&
+                            it.date.isAfter(valley.date.minusDays(DAYS_DIFF))
+//                    it.date.isBefore(valley.date.plusDays(4)) &&
+//                            it.date.isAfter(valley.date)
+                }.map {
+                    "${Category.INCREASE}\t${it.snippet} ${it.content}"
+                }
+            } + prices.filterIndexed { index, _ -> index in peakIndices }.flatMap { peak ->
+                news.filter {
+                    it.date.isBefore(peak.date.plusDays(1)) &&
+                            it.date.isAfter(peak.date.minusDays(DAYS_DIFF))
+//                    it.date.isBefore(peak.date.plusDays(4)) &&
+//                            it.date.isAfter(peak.date)
+                }.map {
+                    "${Category.DECREASE}\t${it.snippet} ${it.content}"
+                }
+            }
 
     Files.write(Paths.get(DATASET), datasetLines)
 }

@@ -2,6 +2,7 @@ package sk.vildibald.text.classification
 
 import edu.stanford.nlp.classify.LinearClassifier
 import org.clulab.processors.Processor
+import sk.vildibald.text.classification.data.entities.Category
 import sk.vildibald.text.classification.util.createDatum
 
 class TextClassifier(private val classifier: LinearClassifier<Category, String>,

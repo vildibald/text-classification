@@ -7,4 +7,5 @@ class WordFeature : Feature {
     override fun createFeatures(sentence: Sentence): Iterable<String> =
             sentence.words().asList().filterStopWords().map { "S-$it" }
 
+
 }

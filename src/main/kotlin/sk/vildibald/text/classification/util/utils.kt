@@ -3,8 +3,8 @@ package sk.vildibald.text.classification.util
 import edu.stanford.nlp.ling.BasicDatum
 import org.clulab.processors.Processor
 import scala.Option
-import sk.vildibald.text.classification.Category
 import sk.vildibald.text.classification.FeatureFactory
+import sk.vildibald.text.classification.data.entities.Category
 import java.time.LocalDate
 import java.time.ZoneId
 import java.util.*
@@ -25,7 +25,10 @@ fun Processor.createDatum(content: String): BasicDatum<Category, String> {
     } catch (e: Exception) {
     }
     // Smart stemming of words: tomato == tomatoes, am == is == are, have == had
-    this.lemmatize(document)
+    try {
+        this.lemmatize(document)
+    } catch (e: AssertionError) {
+    }
 
     return BasicDatum(FeatureFactory.createFeatures(document))
 }
@@ -40,3 +43,9 @@ fun <T> Option<T>.getOrElseKotlin(default: () -> T): T = try {
 }
 
 fun Date.toLocalDate(): LocalDate = this.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+
+val defaultRelevantPosClasses: Set<String> = setOf(
+//        "NN", "NNS", "NNP", "NNPS", "JJ", "VB", "VBP", "VBD", "VBG", "VBN", "VBZ"
+//        "NN", "NNS", "NNP", "NNPS", "JJ"
+        "NN", "NNS", "NNP", "NNPS"
+)

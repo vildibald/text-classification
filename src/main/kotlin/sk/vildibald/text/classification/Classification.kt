@@ -1,3 +1,5 @@
 package sk.vildibald.text.classification
 
-data class Classification(val category: String, val probability: Double)
+import sk.vildibald.text.classification.data.entities.Category
+
+data class Classification(val category: Category, val probability: Double)
