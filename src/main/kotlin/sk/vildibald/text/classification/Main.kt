@@ -6,6 +6,7 @@ import sk.vildibald.text.classification.data.entities.Category
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.LocalDate
 
 
 const val DATASET = "news.txt"
@@ -21,6 +22,8 @@ const val PRICE_COLUMN_EXCEL = 4
 const val DATASET_MULTIPLY_TRAINING_FACTOR = 20
 // delete DATASET and SAVED_MODEL_NAME files before modifying this
 const val DAYS_DIFF = 1L
+
+val FROM_DATE = LocalDate.parse("2017-01-01")
 
 
 //val testQuery = "Trump says: I will make America great again by banning Bitcoin. Hell yeah!"
@@ -77,8 +80,13 @@ private fun prepareDataset(pricesFilePath: String, newsFilePath: String) {
 
     val excelReader = ExcelReader()
 
-    val news = excelReader.readNews(newsFilePath).sortedBy { it.date }
+
+
+    val news = excelReader.readNews(newsFilePath).asSequence().sortedBy { it.date }.filter { it.date > FROM_DATE }.toList()
     val prices = excelReader.readBtcPrices(pricesFilePath, DATE_COLUMN_EXCEL, PRICE_COLUMN_EXCEL)
+            .asSequence()
+            .sortedBy { it.date }.filter { it.date > FROM_DATE }
+            .toList()
 
     val pricePeaks = prices.detectPeaks()
     val peakIndices = pricePeaks.peaks.map { it.index }
@@ -86,23 +94,23 @@ private fun prepareDataset(pricesFilePath: String, newsFilePath: String) {
 
     val datasetLines =
             prices.filterIndexed { index, _ -> index in valleyIndices }.flatMap { valley ->
-                news.filter {
+                news.asSequence().filter {
                     it.date.isBefore(valley.date.plusDays(1)) &&
                             it.date.isAfter(valley.date.minusDays(DAYS_DIFF))
-//                    it.date.isBefore(valley.date.plusDays(4)) &&
-//                            it.date.isAfter(valley.date)
+        //                    it.date.isBefore(valley.date.plusDays(4)) &&
+        //                            it.date.isAfter(valley.date)
                 }.map {
                     "${Category.INCREASE}\t${it.snippet} ${it.content}"
-                }
+                }.toList()
             } + prices.filterIndexed { index, _ -> index in peakIndices }.flatMap { peak ->
-                news.filter {
+                news.asSequence().filter {
                     it.date.isBefore(peak.date.plusDays(1)) &&
                             it.date.isAfter(peak.date.minusDays(DAYS_DIFF))
-//                    it.date.isBefore(peak.date.plusDays(4)) &&
-//                            it.date.isAfter(peak.date)
+        //                    it.date.isBefore(peak.date.plusDays(4)) &&
+        //                            it.date.isAfter(peak.date)
                 }.map {
                     "${Category.DECREASE}\t${it.snippet} ${it.content}"
-                }
+                }.toList()
             }
 
     Files.write(Paths.get(DATASET), datasetLines)

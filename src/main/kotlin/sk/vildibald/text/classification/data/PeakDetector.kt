@@ -75,5 +75,7 @@ class PeakDetector {
     }
 }
 
-fun List<BtcPrice>.detectPeaks(): PeaksValleys =
-        PeakDetector().detectPeaks(this)
+fun List<BtcPrice>.detectPeaks(offset: Int = 0,
+                               length: Int = this.size,
+                               triggerDelta: Double = DEFAULT_TRIGGER_DELTA)
+        : PeaksValleys = PeakDetector().detectPeaks(this, offset, length, triggerDelta)
