@@ -2,7 +2,7 @@ package sk.vildibald.text.classification.data
 
 import sk.vildibald.text.classification.data.entities.BtcPrice
 
-const val DEFAULT_TRIGGER_DELTA = 350.0
+const val DEFAULT_TRIGGER_DELTA = 300.0
 
 data class Peak(val height: Double, val index: Int)
 

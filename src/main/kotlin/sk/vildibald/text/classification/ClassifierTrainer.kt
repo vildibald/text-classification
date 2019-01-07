@@ -27,33 +27,40 @@ class ClassifierTrainer(private val convergenceTolerance: Double = 1e-4,
 
     fun train(trainingFile: File, datasetMultiplyFactor: Int = 1): TextClassifier {
 
-        val goldSet = trainingFile.readLines().asSequence().map { it.split("\t") }
+        val goldSet = trainingFile.readLines()
+                .asSequence()
+                .map { it.split("\t") }
                 .map { (categoryString, content) ->
                     CategoryContent(Category.valueOf(categoryString), content)
-                }.toList().shuffled()
+                }.toList()
+                .shuffled()
 
         val splitIdx = (goldSet.size * crossValidationRatio).toInt()
 
         val trainingData = Dataset<Category, String>(splitIdx)
-        goldSet.take(splitIdx).multiplied(datasetMultiplyFactor).shuffled().forEach {
-            trainingData.add(it.toDatum(processor))
-        }
+        goldSet.take(splitIdx)
+                .multiplied(datasetMultiplyFactor)
+                .shuffled()
+                .forEach {
+                    trainingData.add(it.toDatum(processor))
+                }
 
         val testData = goldSet.drop(splitIdx)
         println("Total features: ${trainingData.numFeatures()}")
 
         // Train a classifier.
         // Convergence tolerance = 1e-4.  Sigma smoothing = 1.0 (decrease if system is over-trained)
-        val linearClassifierFactory = LinearClassifierFactory<Category, String>(
-                convergenceTolerance, false, smoothingFactor)
-        val classifier = linearClassifierFactory.trainClassifier(trainingData)
+        val classifier = LinearClassifierFactory<Category, String>(
+                convergenceTolerance, false, smoothingFactor
+        ).trainClassifier(trainingData)
 
         val bestFeatures = classifier.toBiggestWeightFeaturesString(false, numFeatures, true)
         println("Top $numFeatures overall features:\n$bestFeatures\n")
 
         val correct = testData.count { tagContentDatum ->
-            val scores = classifier.probabilityOf(tagContentDatum.toDatum(processor)).entrySet()
-                    .toList().sortedByDescending { it.value }
+            val scores = classifier.probabilityOf(tagContentDatum.toDatum(processor))
+                    .entrySet()
+                    .sortedBy { it.value }
             tagContentDatum.category == scores.first().key
         }
         println("Training accuracy: ${String.format("%.1f", 100.0 * correct / testData.size)}%\n")
@@ -67,8 +74,10 @@ class ClassifierTrainer(private val convergenceTolerance: Double = 1e-4,
             else
                 datasetRows.flatMap { datum ->
                     (0 until multiplyFactor).map {
-                        datum.copy(content = datum.content.split(" ").shuffled()
-                                .joinToString(separator = " "))
+                        datum.copy(content = datum.content.split(" ")
+                                .shuffled()
+                                .joinToString(separator = " ")
+                        )
                     } + datum
                 }
 

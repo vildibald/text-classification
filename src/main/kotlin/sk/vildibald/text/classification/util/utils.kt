@@ -36,7 +36,7 @@ fun Processor.createDatum(content: String): BasicDatum<Category, String> {
 /**
  * A workaround for Scala's Option<[T]>.getOrElse, since it does not compile in Kotlin.
  */
-fun <T> Option<T>.getOrElseKotlin(default: () -> T): T = try {
+fun <T> Option<T>.GetOrElseInKotlin(default: () -> T): T = try {
     this.get()
 } catch (e: Exception) {
     default()

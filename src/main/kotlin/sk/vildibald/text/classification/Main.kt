@@ -11,19 +11,19 @@ import java.time.LocalDate
 
 const val DATASET = "news.txt"
 const val SAVED_MODEL_NAME = "newsModel.model"
-const val EXCEL_NEWS = "CCNNewsUpdated.xlsx"
-const val EXCEL_PRICES = "CMCHistoricalData.xlsx"
+const val EXCEL_NEWS = "CCNNewsLatest.xlsx"
+const val EXCEL_PRICES = "CMCHistoricalDataLatest.xlsx"
 const val DATE_COLUMN_EXCEL = 0
 const val PRICE_COLUMN_EXCEL = 4
 
 //const val EXCEL_NEWS = "CCNNews.xlsx"
 
 // delete SAVED_MODEL_NAME file before modifying this
-const val DATASET_MULTIPLY_TRAINING_FACTOR = 20
+const val DATASET_MULTIPLY_TRAINING_FACTOR = 15
 // delete DATASET and SAVED_MODEL_NAME files before modifying this
 const val DAYS_DIFF = 1L
 
-val FROM_DATE = LocalDate.parse("2017-01-01")
+val FROM_DATE = LocalDate.parse("2017-04-04")
 
 
 //val testQuery = "Trump says: I will make America great again by banning Bitcoin. Hell yeah!"
@@ -81,35 +81,48 @@ private fun prepareDataset(pricesFilePath: String, newsFilePath: String) {
     val excelReader = ExcelReader()
 
 
-
-    val news = excelReader.readNews(newsFilePath).asSequence().sortedBy { it.date }.filter { it.date > FROM_DATE }.toList()
+    val news = excelReader.readNews(newsFilePath)
+            .asSequence()
+            .sortedBy { it.date }
+            .filter { it.date > FROM_DATE }
+            .toList()
     val prices = excelReader.readBtcPrices(pricesFilePath, DATE_COLUMN_EXCEL, PRICE_COLUMN_EXCEL)
             .asSequence()
-            .sortedBy { it.date }.filter { it.date > FROM_DATE }
+            .sortedBy { it.date }
+            .filter { it.date > FROM_DATE }
             .toList()
 
     val pricePeaks = prices.detectPeaks()
     val peakIndices = pricePeaks.peaks.map { it.index }
     val valleyIndices = pricePeaks.valleys.map { it.index }
 
-    val datasetLines =
-            prices.filterIndexed { index, _ -> index in valleyIndices }.flatMap { valley ->
+    val datasetLines = prices
+            .filterIndexed { index, _ -> index in valleyIndices }
+            .flatMap { valley ->
                 news.asSequence().filter {
-                    it.date.isBefore(valley.date.plusDays(1)) &&
-                            it.date.isAfter(valley.date.minusDays(DAYS_DIFF))
-        //                    it.date.isBefore(valley.date.plusDays(4)) &&
-        //                            it.date.isAfter(valley.date)
+                    it.date == valley.date
+//                    it.date.isBefore(valley.date.plusDays(1)) &&
+//                            it.date.isAfter(valley.date.minusDays(DAYS_DIFF))
+                    //                    it.date.isBefore(valley.date.plusDays(4)) &&
+                    //                            it.date.isAfter(valley.date)
                 }.map {
-                    "${Category.INCREASE}\t${it.snippet} ${it.content}"
+                    "${Category.INCREASE}\t" +
+                            "${it.snippet.replace("\t", " ").replace("\n", " ")} " +
+                            it.content.replace("\t", " ").replace("\n", " ")
                 }.toList()
-            } + prices.filterIndexed { index, _ -> index in peakIndices }.flatMap { peak ->
+            } + prices
+            .filterIndexed { index, _ -> index in peakIndices }
+            .flatMap { peak ->
                 news.asSequence().filter {
-                    it.date.isBefore(peak.date.plusDays(1)) &&
-                            it.date.isAfter(peak.date.minusDays(DAYS_DIFF))
-        //                    it.date.isBefore(peak.date.plusDays(4)) &&
-        //                            it.date.isAfter(peak.date)
+                    it.date == peak.date
+//                    it.date.isBefore(peak.date.plusDays(1)) &&
+//                            it.date.isAfter(peak.date.minusDays(DAYS_DIFF))
+                    //                    it.date.isBefore(peak.date.plusDays(4)) &&
+                    //                            it.date.isAfter(peak.date)
                 }.map {
-                    "${Category.DECREASE}\t${it.snippet} ${it.content}"
+                    "${Category.DECREASE}\t" +
+                            "${it.snippet.replace("\t", " ").replace("\n", " ")} " +
+                            it.content.replace("\t", " ").replace("\n", " ")
                 }.toList()
             }
 
